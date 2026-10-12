@@ -1,0 +1,36 @@
+name: Validate
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Format, race tests, and vet
+        run: |
+          test -z "$(gofmt -l cmd internal pkg examples/demo)"
+          go test -race -cover ./...
+          go vet ./...
+      - name: Go vulnerability scan
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+      - name: Rego tests
+        run: docker run --rm -v "$PWD/policies:/policies:ro" openpolicyagent/opa:1.21.2-static test /policies -v
+      - name: Git history secret scan
+        run: docker run --rm -v "$PWD:/src:ro" ghcr.io/gitleaks/gitleaks:v8.30.1 git /src --redact --no-banner
+      - name: Docker integration smoke
+        run: |
+          python3 scripts/init-demo.py
+          docker compose up --build -d
+          python3 scripts/smoke.py
+      - name: Stop demo
+        if: always()
+        run: docker compose down

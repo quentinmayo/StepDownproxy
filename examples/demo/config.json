@@ -1,0 +1,7 @@
+{
+  "listen": ":8080",
+  "opa_url": "http://opa:8181/v1/data/stepdown/allow",
+  "allow_http": true,
+  "clients": [{"id": "demo-reader", "token": {"provider": "env", "ref": "STEPDOWN_CLIENT_TOKEN"}}],
+  "services": [{"id": "github", "url": "http://upstream:8081", "credential": {"provider": "env", "ref": "DEMO_UPSTREAM_TOKEN"}, "header": "Authorization", "prefix": "Bearer "}]
+}

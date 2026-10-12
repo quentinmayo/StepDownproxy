@@ -1,0 +1,37 @@
+name: stepdownproxy-demo
+services:
+  proxy:
+    build: .
+    command: ["-config", "/config/config.json", "-admin-listen", ":9090", "-state", "/state/assets.json"]
+    ports:
+      - "127.0.0.1:${STEPDOWN_PORT:-18080}:8080"
+      - "127.0.0.1:${STEPDOWN_ADMIN_PORT:-19090}:9090"
+    environment:
+      STEPDOWN_CLIENT_TOKEN: ${STEPDOWN_CLIENT_TOKEN:?Run python3 scripts/init-demo.py}
+      STEPDOWN_ADMIN_TOKEN: ${STEPDOWN_ADMIN_TOKEN:?Run python3 scripts/init-demo.py}
+      DEMO_UPSTREAM_TOKEN: ${DEMO_UPSTREAM_TOKEN:?Run python3 scripts/init-demo.py}
+    volumes:
+      - ./examples/demo/config.json:/config/config.json:ro
+    tmpfs:
+      - /state:uid=65532,gid=65532,mode=0700
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on: [opa, upstream]
+  opa:
+    image: openpolicyagent/opa:1.21.2-static
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policies"]
+    volumes:
+      - ./policies:/policies:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  upstream:
+    build:
+      context: .
+      target: demo
+    environment:
+      DEMO_UPSTREAM_TOKEN: ${DEMO_UPSTREAM_TOKEN:?Run python3 scripts/init-demo.py}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

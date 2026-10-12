@@ -1,0 +1,11 @@
+*
+!go.mod
+!cmd/
+!cmd/**
+!internal/
+!internal/**
+!pkg/
+!pkg/**
+!examples/
+!examples/demo/
+!examples/demo/server.go

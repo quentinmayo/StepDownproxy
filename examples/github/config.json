@@ -1,0 +1,8 @@
+{
+  "listen": "127.0.0.1:8080",
+  "opa_url": "https://opa.internal.example/v1/data/stepdown/allow",
+  "allow_http": false,
+  "clients": [{"id": "demo-reader", "token": {"provider": "file", "ref": "/run/secrets/reader-token"}}],
+  "knox": {"url": "https://knox.internal.example", "token": {"provider": "file", "ref": "/run/secrets/knox-auth"}, "ca_file": "/run/certs/knox-ca.pem", "cert_file": "/run/certs/client.pem", "key_file": "/run/certs/client.key"},
+  "services": [{"id": "github", "url": "https://api.github.com", "credential": {"provider": "knox", "ref": "stepdown:github:token"}, "header": "Authorization", "prefix": "Bearer "}]
+}

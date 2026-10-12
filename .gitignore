@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.secrets/
+.local/
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+coverage.out
+coverage.html
+bin/
+.DS_Store
+go.work
+go.work.sum
